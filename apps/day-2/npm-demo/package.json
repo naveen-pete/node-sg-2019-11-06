@@ -1,0 +1,15 @@
+{
+  "name": "my-first-app",
+  "version": "0.0.1",
+  "description": "This app provides a demo for npm commands",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Naveen Pete",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0"
+  }
+}
