@@ -1,72 +1,24 @@
 const express = require('express');
 const morgan = require('morgan');
-const { users, products } = require('./data');
+
+const userRouter = require('./routes/users');
+const productRouter = require('./routes/products');
+const homeRouter = require('./routes/home');
+
+const log = require('./middleware/log');
 
 const app = express();
-
-const log = (req, res, next) => {
-  console.log(`Request received: Url: ${req.url}, Method: ${req.method}`);
-  next();
-};
 
 app.use(log);
 app.use(morgan('tiny'));
 app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+app.set('view engine', 'pug');
+app.set('views', `${__dirname}\\my-views`);
 
-app.get('/', (req, res) => {
-  res.send('<h3>Hello! Welcome to ECOM Api using Express framework</h3>');
-});
-
-app.route('/api/users')
-  .get((req, res) => {
-    res.json(users);
-  })
-  .post((req, res) => {
-    const newUser = { ...req.body, id: Date.now() };
-    users.push(newUser);
-    res.status(201).send(newUser);
-  });
-
-app.route('/api/users/:id')
-  .get((req, res) => {
-    const id = req.params.id;
-    const user = users.find(u => u.id === parseInt(id));
-    if (!user) {
-      res.status(404).json({ message: 'User not found!' });
-      return;
-    }
-
-    res.json(user);
-  })
-  .put((req, res) => {
-    const id = req.params.id;
-    const user = users.find(u => u.id === parseInt(id));
-    if (!user) {
-      return res.status(404).json({ message: 'User not found!' });
-    }
-
-    user.name = req.body.name;
-    res.json(user);
-  })
-  .delete((req, res) => {
-    const id = req.params.id;
-    const index = users.findIndex(u => u.id === parseInt(id));
-    if (index < 0) {
-      return res.status(404).json({ message: 'User not found!' });
-    }
-
-    users.splice(index, 1);
-    res.json({ message: `User with id '${id}' deleted successfully!` });
-  });
-
-app.get('/api/products', (req, res) => {
-  res.json(products);
-});
-
-app.post('/api/products', (req, res) => {
-  res.status(201).send('Post Product');
-})
+app.use('/api/users', userRouter);
+app.use('/api/products', productRouter);
+app.use('/', homeRouter);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
