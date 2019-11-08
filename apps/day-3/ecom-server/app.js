@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 
+const authRouter = require('./routes/auth');
 const userRouter = require('./routes/users');
 const productRouter = require('./routes/products');
 const homeRouter = require('./routes/home');
@@ -17,6 +18,7 @@ app.use(express.static('public'));
 app.set('view engine', 'pug');
 app.set('views', `${__dirname}\\my-views`);
 
+app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/products', productRouter);
 app.use('/', homeRouter);

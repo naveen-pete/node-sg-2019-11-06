@@ -1,12 +1,15 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const User = require('../models/user');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 
 const { users } = require('../data');
 
 const router = express.Router();
 
 router.route('/')
-  .get(async (req, res) => {
+  .get([auth, admin], async (req, res) => {
     try {
       const users = await User.find();
       res.json(users);
@@ -18,7 +21,15 @@ router.route('/')
     try {
       // validate incoming data
       // const user = await User.create({ ...req.body });
-      const user = new User({ ...req.body });
+
+      let user = await User.findOne({ email: req.body.email });
+      if (user) {
+        return res.status(400).json({ message: `User with ${req.body.email} already registered.` });
+      }
+
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+      user = new User({ ...req.body, password: hashedPassword });
       await user.save();
       res.status(201).send(user);
     } catch (e) {

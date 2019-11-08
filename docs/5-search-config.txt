@@ -1,0 +1,26 @@
+SEARCH Functionality
+--------------------
+
+HTTP GET with request body
+- https://stackoverflow.com/questions/978061/http-get-with-request-body
+
+How to design RESTful search/filtering? [closed]
+- https://stackoverflow.com/questions/5020704/how-to-design-restful-search-filtering
+
+RESTful URL design for search
+- https://stackoverflow.com/questions/207477/restful-url-design-for-search
+
+Axios
+- https://github.com/axios/axios
+
+Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content
+- https://tools.ietf.org/html/rfc7231#section-4.3.1
+
+Using environment variables in React
+- https://medium.com/@trekinbami/using-environment-variables-in-react-6b0a99d83cf5
+
+Adding Custom Environment Variables
+- https://create-react-app.dev/docs/adding-custom-environment-variables/
+
+Pug Template Engine - Full Tutorial for Beginners
+- https://youtu.be/kt3cEjjkCZA

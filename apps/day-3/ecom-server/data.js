@@ -8,7 +8,10 @@ const products = [
   { id: 2, name: 'Samsung Galaxy S10' }
 ];
 
+const secretKey = 'abc123';
+
 module.exports = {
   users,
-  products
+  products,
+  secretKey
 };

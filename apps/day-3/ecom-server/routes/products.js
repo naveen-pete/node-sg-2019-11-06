@@ -1,50 +1,78 @@
 const express = require('express');
-
-const { products } = require('../data');
+const _ = require('lodash');
+const Product = require('../models/product');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 
 const router = express.Router();
 
 router.route('/')
-  .get((req, res) => {
-    res.json(products);
+  .get(async (req, res) => {
+    try {
+      // const products = await Product.find().select('_id name description price category');
+      // const products = await Product.find().select({ _id: true, name: true, description: true, price: true, category: true });
+      // const products = await Product.find().select({ __v: false });
+      const products = await Product.find().select('-__v');
+      res.send(products);
+    } catch (e) {
+      res.status(500).send({ message: 'Get products failed.', error: e.message });
+    }
   })
-  .post((req, res) => {
-    const newProduct = { ...req.body, id: Date.now() };
-    products.push(newProduct);
-    res.status(201).send(newProduct);
+  .post(auth, async (req, res) => {
+    try {
+      let product = await Product.create({ ...req.body });
+      product = _.pick(product, ['_id', 'name', 'description', 'price', 'category']);
+      res.status(201).send(product);
+    }
+    catch (e) {
+      res.status(500).send({ message: 'Create product failed.', error: e.message });
+    }
   });
 
 router.route('/:id')
-  .get((req, res) => {
-    const id = req.params.id;
-    const product = products.find(p => p.id === parseInt(id));
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found!' });
+  .get(async (req, res) => {
+    try {
+      const id = req.params.id;
+      const product = await Product.findById(id).select('-__v');
+      if (!product) {
+        return res.status(404).send({ message: 'Product not found!' });
+      }
+
+      res.send(product);
+    } catch (e) {
+      res.status(500).send({ message: 'Get product failed.', error: e.message });
     }
-
-    console.log('query string:', req.query);
-
-    res.json(product);
   })
-  .put((req, res) => {
-    const id = req.params.id;
-    const product = products.find(p => p.id === parseInt(id));
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found!' });
-    }
+  .put(auth, async (req, res) => {
+    try {
+      const id = req.params.id;
+      const product = await Product.findByIdAndUpdate(id, {
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,
+        category: req.body.category,
+      }, { new: true });
 
-    product.name = req.body.name;
-    res.json(product);
+      if (!product) {
+        return res.status(404).send({ message: 'Product not found!' });
+      }
+
+      res.send(product);
+    } catch (e) {
+      res.status(500).send({ message: 'Update product failed.', error: e.message });
+    }
   })
-  .delete((req, res) => {
-    const id = req.params.id;
-    const index = products.findIndex(p => p.id === parseInt(id));
-    if (index < 0) {
-      return res.status(404).json({ message: 'Product not found!' });
+  .delete([auth, admin], async (req, res) => {
+    try {
+      const id = req.params.id;
+      const product = await Product.findByIdAndDelete(id);
+      if (!product) {
+        return res.status(404).json({ message: 'Product does not exist!' });
+      }
+      res.json(product);
+    } catch (e) {
+      res.status(500).send({ message: 'Delete product failed.', error: e.message });
     }
-
-    products.splice(index, 1);
-    res.json({ message: `Product with id '${id}' deleted successfully!` });
   });
 
 module.exports = router;
