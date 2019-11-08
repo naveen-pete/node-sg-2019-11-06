@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const mongoose = require('mongoose');
 
 const userRouter = require('./routes/users');
 const productRouter = require('./routes/products');
@@ -20,7 +21,21 @@ app.use('/api/users', userRouter);
 app.use('/api/products', productRouter);
 app.use('/', homeRouter);
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log('ECOM Server started. Listening on port ' + port);
-});
+mongoose.connect(
+  'mongodb://localhost:27017/product-db',
+  { useNewUrlParser: true, useUnifiedTopology: true }
+)
+  .then(() => {
+    console.log('Connected to Product DB successfully.');
+
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+      console.log('ECOM Server started. Listening on port ' + port);
+    });
+
+  })
+  .catch((error) => {
+    console.log('Error while connecting to database.');
+    console.log('Error:', error);
+  });
+

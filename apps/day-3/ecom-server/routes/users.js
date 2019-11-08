@@ -1,17 +1,29 @@
 const express = require('express');
+const User = require('../models/user');
 
 const { users } = require('../data');
 
 const router = express.Router();
 
 router.route('/')
-  .get((req, res) => {
-    res.json(users);
+  .get(async (req, res) => {
+    try {
+      const users = await User.find();
+      res.json(users);
+    } catch (e) {
+      res.status(500).json({ message: 'Get users failed!', error: e.message });
+    }
   })
-  .post((req, res) => {
-    const newUser = { ...req.body, id: Date.now() };
-    users.push(newUser);
-    res.status(201).send(newUser);
+  .post(async (req, res) => {
+    try {
+      // validate incoming data
+      // const user = await User.create({ ...req.body });
+      const user = new User({ ...req.body });
+      await user.save();
+      res.status(201).send(user);
+    } catch (e) {
+      res.status(500).json({ message: 'Create user failed!', error: e.message });
+    }
   });
 
 router.route('/:id')
